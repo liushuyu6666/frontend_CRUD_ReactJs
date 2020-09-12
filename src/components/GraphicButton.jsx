@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import DetectInput from "./DetectInput";
 import UpdateButton from "./UpdateButton";
-import AddRow from "./AddRow";
+import CreateButton from "./CreateButton";
 import DeleteButton from "./DeleteButton";
 
 class GraphicButton extends Component{
@@ -17,11 +17,6 @@ class GraphicButton extends Component{
         this.update = {};
         // need to be clean after clicking create button
         this.create = {};
-    }
-
-    updateRequest = (rowId, fieldName, value) => {
-        this.update[rowId + "@" + fieldName] = value;
-        // console.log(this.update);
     }
 
     preparePostRequest = (rowId, fieldName, value) => {
@@ -54,8 +49,13 @@ class GraphicButton extends Component{
             });
     }
 
-    clearUpdateDate = () => {
+    clearUpdateData = () => {
         this.update = {};
+    }
+
+    clearCreateData = () => {
+        this.create = {};
+        console.log("created data has been cleaned");
     }
 
     addRow = (event) => {
@@ -93,7 +93,7 @@ class GraphicButton extends Component{
                                 {Object.values(row).map((ele, eleIndex) => (
                                     <td key={ele}>
                                         <DetectInput fieldName={Object.keys(row)[eleIndex]}
-                                                  value={ele} rowId={row["id"]} recordUpdate={this.updateRequest}/>
+                                                  value={ele} rowId={row["id"]} loadBuffer={this.preparePostRequest}/>
                                     </td>
                                 ))}
                                 <DeleteButton key={row[rowIndex]} whichRow={row["id"]} removeHandle={this.deleteOneRow}/>
@@ -102,9 +102,22 @@ class GraphicButton extends Component{
                     }
                     </tbody>
                 </table>
-                <UpdateButton updateData={this.update} reload={this.listGraphic} clearUpdateData={this.clearUpdateDate}/>
+                <UpdateButton updateData={this.update} reload={this.listGraphic} clearUpdateData={this.clearUpdateData}/>
                 <br/>
-                <AddRow rownum={this.state.row} fields={this.state.fields} detectInput={this.createRequest}/>
+                <form id={"create"}>
+                    <table>
+                        <tbody id={"create-body"}>
+                        <tr>
+                            {this.state.fields.map(item => (
+                                <DetectInput rowId={null} fieldName={item} value={null}
+                                             loadBuffer={this.preparePostRequest}/>
+                            ))}
+                        </tr>
+                        </tbody>
+                    </table>
+                    <CreateButton createData={this.create} clearCreateData={this.clearCreateData}/>
+                </form>
+
             </>
         )
     }

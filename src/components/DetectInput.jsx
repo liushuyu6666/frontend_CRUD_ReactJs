@@ -11,7 +11,7 @@ export default class DetectInput extends React.PureComponent{
         event.preventDefault();
         event.target.setAttribute("style", "background: red");
 
-        this.props.recordUpdate(this.props.rowId,
+        this.props.loadBuffer(this.props.rowId,
             this.props.fieldName, event.target.value);
 
         // console.log(this.props.rowId);
@@ -22,7 +22,7 @@ export default class DetectInput extends React.PureComponent{
 
     render(){
         if(this.props.fieldName === "id"){
-            return <input value={this.props.value}/>
+            return <input value={this.props.value} readOnly/>
         }
         else{
             return <input defaultValue={this.props.value} onChange={this.AfterChange}/>
