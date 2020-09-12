@@ -24,10 +24,10 @@ export default class UpdateButton extends React.PureComponent{
             }
             fetch(url, options)
                 .then(res => res.json())
-                .then(data => console.log(data))
+                .then(data => this.props.clearUpdateData())
+                //.then(data => this.props.reload())
                 .catch(error => console.error(error));
         }
-
     }
 
     render() {

@@ -21,9 +21,12 @@ export default class DetectInput extends React.PureComponent{
     }
 
     render(){
-        return(
-            <input defaultValue={this.props.value} onChange={this.AfterChange}/>
-        )
+        if(this.props.fieldName === "id"){
+            return <input value={this.props.value}/>
+        }
+        else{
+            return <input defaultValue={this.props.value} onChange={this.AfterChange}/>
+        }
     }
 
 }

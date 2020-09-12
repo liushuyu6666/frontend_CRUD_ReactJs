@@ -6,7 +6,7 @@ import GraphicButton from "./components/GraphicButton";
 function App() {
   return (
     <div className="App">
-      <GraphicButton></GraphicButton>
+      <GraphicButton/>
     </div>
   );
 }

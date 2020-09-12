@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import DetectInput from "./DetectInput";
 import UpdateButton from "./UpdateButton";
+import AddRow from "./AddRow";
+import DeleteButton from "./DeleteButton";
 
 class GraphicButton extends Component{
     constructor(props) {
@@ -8,10 +10,13 @@ class GraphicButton extends Component{
         this.state = {
             fields: [],
             data: [],
+            row: [],
 
         }
         // need to be clean after clicking update button
         this.update = {};
+        // need to be clean after clicking create button
+        this.create = {};
     }
 
     updateRequest = (rowId, fieldName, value) => {
@@ -19,8 +24,22 @@ class GraphicButton extends Component{
         // console.log(this.update);
     }
 
+    preparePostRequest = (rowId, fieldName, value) => {
+        if(rowId === null){
+            this.create[fieldName] = value;
+        }
+        else{
+            this.update[rowId + "@" + fieldName] = value;
+        }
+    }
+
     listGraphic = (event) => {
-        event.preventDefault();
+
+        let willRemove = document.getElementById("tbody").firstChild
+        while(willRemove !== null){
+            document.getElementById("tbody").removeChild(willRemove);
+            willRemove = document.getElementById("tbody").firstChild
+        }
 
         fetch("http://localhost:8080/v1/graphic_cards", {method: "GET"})
             .then(res => res.json())
@@ -35,6 +54,26 @@ class GraphicButton extends Component{
             });
     }
 
+    clearUpdateDate = () => {
+        this.update = {};
+    }
+
+    addRow = (event) => {
+        event.preventDefault();
+        this.setState({"row": [...this.state.row, 1]});
+    }
+
+    deleteOneRow = (event, rowId) => {
+        event.preventDefault();
+        let url = "http://localhost:8080/v1/graphic_cards/" + rowId;
+        console.log(url);
+        fetch(url, {method: "DELETE"})
+            .then(data => data.json())
+            .then(data => console.log(data))
+            .catch(error => console.error(error))
+    }
+
+
     render() {
         return(
             <>
@@ -47,23 +86,25 @@ class GraphicButton extends Component{
                             ))}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id={"tbody"}>
                     {
                         this.state.data.map((row, rowIndex) => (
                             <tr key={row[rowIndex]}>
                                 {Object.values(row).map((ele, eleIndex) => (
                                     <td key={ele}>
-                                        {eleIndex === 0? <label>{ele}</label> :
-                                            <DetectInput fieldName={Object.keys(row)[eleIndex]}
-                                                      value={ele} rowId={row["id"]} recordUpdate={this.updateRequest}/>}
+                                        <DetectInput fieldName={Object.keys(row)[eleIndex]}
+                                                  value={ele} rowId={row["id"]} recordUpdate={this.updateRequest}/>
                                     </td>
                                 ))}
+                                <DeleteButton key={row[rowIndex]} whichRow={row["id"]} removeHandle={this.deleteOneRow}/>
                             </tr>
                         ))
                     }
                     </tbody>
                 </table>
-                <UpdateButton updateData={this.update}/>
+                <UpdateButton updateData={this.update} reload={this.listGraphic} clearUpdateData={this.clearUpdateDate}/>
+                <br/>
+                <AddRow rownum={this.state.row} fields={this.state.fields} detectInput={this.createRequest}/>
             </>
         )
     }
