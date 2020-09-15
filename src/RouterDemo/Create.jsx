@@ -1,12 +1,13 @@
 import React, {Component} from "react";
 import {withRouter} from "react-router-dom";
 
-class Edit extends Component{
+
+class Create extends Component{
 
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
+            data: {},
             warning: {},
             color: {},
             submitting: false,
@@ -29,14 +30,14 @@ class Edit extends Component{
                 Number.isNaN(event.target.value * 1)){
                 this.setState({warning: {...this.state.warning,
                             price: "price should be positive number"},
-                            color: {...this.state.color,
+                        color: {...this.state.color,
                             price: "is-invalid"}},
                     () => console.log(this.state.warning))
             }
             else{
                 this.setState({warning: {...this.state.warning,
                         price: ""},
-                        color: {...this.state.color,
+                    color: {...this.state.color,
                         price: "is-valid"}})
             }
         }
@@ -44,14 +45,14 @@ class Edit extends Component{
             if(event.target.value === ""){
                 this.setState({warning: {...this.state.warning,
                             label: "label should not be empty"},
-                            color: {...this.state.color,
+                        color: {...this.state.color,
                             label: "is-invalid"}},
                     () => console.log(this.state.warning))
             }
             else{
                 this.setState({warning: {...this.state.warning,
                         label: ""},
-                        color: {...this.state.color,
+                    color: {...this.state.color,
                         label: "is-valid"}})
             }
         }
@@ -86,7 +87,7 @@ class Edit extends Component{
             })
             console.log(data);
             this.setState({submitting: true});
-            fetch("http://localhost:8080/v1/graphic_cards/35",
+            fetch("http://localhost:8080/v1/graphic_cards",
                 {
                     method: "POST",
                     headers: {
@@ -122,15 +123,14 @@ class Edit extends Component{
                     </div>
                 )}
                 <button disabled={this.state.submitting} type="submit" className="btn btn-primary"
-                onClick={this.checkAndUpdate}>Update</button>
+                        onClick={this.checkAndUpdate}>Update</button>
             </form>
         )
     }
 
     componentDidMount() {
-        this.retrieveTarget();
     }
 
 }
 
-export default withRouter(Edit);
+export default withRouter(Create);

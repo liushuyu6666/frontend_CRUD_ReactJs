@@ -10,6 +10,7 @@ import {
     Route,
     Link,
 } from "react-router-dom";
+import Create from "./RouterDemo/Create";
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function RouterApp() {
             <div>
                 <Link to="/">Home</Link>
                 <Link to="/graphicCards/33/edit">Graphic card with id: </Link>
-                <Link>Add new graphic card</Link>
+                <Link to="/graphicCards/add">Add new graphic card</Link>
             </div>
 
             <Switch>
@@ -37,7 +38,8 @@ function RouterApp() {
                 <Route path="/graphicCards/:id/edit">
                     <Edit/>
                 </Route>
-                <Route path="/graphic_cards/add">
+                <Route path="/graphicCards/add">
+                    <Create/>
                 </Route>
             </Switch>
         </Router>
