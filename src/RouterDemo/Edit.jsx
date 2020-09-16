@@ -12,6 +12,7 @@ class Edit extends Component{
 
     render(){
         let url = "http://localhost:8080/v1/graphic_cards/" + this.props.match.params.id;
+        // console.log(url);
         return(
            <FillInForm retrieveUrl={url}
            pushUrl={url} column={["price", "brand", "label"]}/>

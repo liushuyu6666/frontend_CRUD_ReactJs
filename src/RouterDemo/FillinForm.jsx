@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {withRouter} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
 
 
 class FillInForm extends Component{
@@ -12,20 +12,18 @@ class FillInForm extends Component{
             color: {},
             submitting: false,
             serverFeedback: "",
+            fill: "",
         }
         this.graphicCardColumn = ["price", "brand", "label"];
     }
 
     retrieveTarget = () => {
         if(this.props.retrieveUrl !== null){
-            console.log(this.props.retrieveUrl);
             fetch(this.props.retrieveUrl,
                 {method: "GET"})
                 .then(res => res.json())
                 .then(data => this.setState({data: data.result}))
-        }
-        else{
-            console.log(this.props.retrieveUrl);
+                .catch(data => console.error(data));
         }
     }
 
@@ -37,12 +35,11 @@ class FillInForm extends Component{
                 this.setState({warning: {...this.state.warning,
                             price: "price should be positive number"},
                         color: {...this.state.color,
-                            price: "is-invalid"}},
-                    () => console.log(this.state.warning))
+                            price: "is-invalid"}})
             }
             else{
                 this.setState({warning: {...this.state.warning,
-                        price: ""},
+                        price: "correct"},
                     color: {...this.state.color,
                         price: "is-valid"}})
             }
@@ -52,12 +49,11 @@ class FillInForm extends Component{
                 this.setState({warning: {...this.state.warning,
                             label: "label should not be empty"},
                         color: {...this.state.color,
-                            label: "is-invalid"}},
-                    () => console.log(this.state.warning))
+                            label: "is-invalid"}})
             }
             else{
                 this.setState({warning: {...this.state.warning,
-                        label: ""},
+                        label: "correct"},
                     color: {...this.state.color,
                         label: "is-valid"}})
             }
@@ -67,31 +63,37 @@ class FillInForm extends Component{
                 this.setState({warning: {...this.state.warning,
                             brand: "brand should not be empty"},
                         color: {...this.state.color,
-                            brand: "is-invalid"}},
-                    () => console.log(this.state.warning))
+                            brand: "is-invalid"}})
             }
             else{
                 this.setState({warning: {...this.state.warning,
-                        brand: ""},
+                        brand: "correct"},
                     color: {...this.state.color,
                         brand: "is-valid"}})
             }
         }
     }
 
-    checkAndUpdate = () => {
+    checkAndUpdate = (event) => {
+        event.preventDefault();
         let validateToken = true;
-        Object.values(this.state.color).map(item => {
-            if(item === "is-invalid"){
-                validateToken = false;
-            }
-        })
+        if(Object.keys(this.state.color).length < 1){
+            this.setState({fill: "can't be empty"})
+            validateToken = false;
+        }
+        else{
+            Object.values(this.state.color).map(item => {
+                console.log(item);
+                if(item !== "is-valid"){
+                    validateToken = false;
+                }
+            })
+        }
         if(validateToken){
             let data = {}
             this.props.column.map((item) => {
                 data[item] = document.getElementById(item).value;
             })
-            console.log(data);
             this.setState({submitting: true});
             fetch(this.props.pushUrl,
                 {
@@ -102,31 +104,37 @@ class FillInForm extends Component{
                     body: JSON.stringify(data)
                 })
                 .then(res => res.json())
-                .then(data => this.setState({serverFeedback: data.message, submitting: false}))
+                .then(data => this.setState({serverFeedback: data.message, submitting: false},
+                    () => {this.props.history.push(`/`)}))
                 .catch(data => this.setState({serverFeedback: data.error, submitting: false}))
         }
     }
 
     render(){
-
         return(
-            <form>
-                {this.props.column.map(item =>
-                    <div className="form-row">
-                        <label htmlFor={item}>{item}</label>
-                        <input type="text" className={"form-control " + this.state.color[item]}
-                               id={item} aria-describedby="emailHelp"
-                               defaultValue={this.state.data[item]}
-                               onChange={this.checkValidation}/>
-                        <div id={item + "small"} className="form-text text-muted">
-                            {this.state.warning[item] != null ?
-                                this.state.warning[item] : "please input "+ item}
-                        </div>
+            <div className={"container"}>
+                <div className={"row"}>
+                    <form className={"col"}>
+                        {this.props.column.map(item =>
+                            <div className="form-row">
+                                <label htmlFor={item}>{item}</label>
+                                <input type="text" className={"form-control " + this.state.color[item]}
+                                       id={item} defaultValue={this.state.data[item]}
+                                       onChange={this.checkValidation}/>
+                                <div id={item + "small"} className="form-text text-muted">
+                                    {this.state.warning[item] != null ?
+                                        this.state.warning[item] : "please input "+ item}
+                                </div>
+                            </div>
+                        )}
+                        <button disabled={this.state.submitting} type="submit" className="btn btn-primary"
+                                onClick={this.checkAndUpdate}>Update</button>
+                    </form>
+                    <div className={"col col-md-5"}>
+                        {this.state.fill}
                     </div>
-                )}
-                <button disabled={this.state.submitting} type="submit" className="btn btn-primary"
-                        onClick={this.checkAndUpdate}>Update</button>
-            </form>
+                </div>
+            </div>
         )
     }
 
