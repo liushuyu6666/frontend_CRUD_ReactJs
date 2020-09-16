@@ -27,7 +27,7 @@ class Table extends Component{
                         {this.props.columns.map(ele =>
                             <td>{row[ele]}</td>)}
                             <td>
-                                <Link>Edit</Link>
+                                <Link to={`/graphicCards/${row.id}/edit`}>Edit</Link>
                                 <button name={row.id}
                                         onClick={this.props.deleteHandler}>Delete</button>
                             </td>
