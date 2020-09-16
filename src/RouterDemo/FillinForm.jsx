@@ -8,106 +8,79 @@ class FillInForm extends Component{
         super(props);
         this.state = {
             data: {},
-            warning: {},
-            color: {},
-            submitting: false,
+            price: ["this is price", "form-control", false],
+            brand: ["this is brand", "form-control", false],
+            label: ["this is label", "form-control", false],
+            disable: true,
             serverFeedback: "",
-            fill: "",
-        }
-        this.graphicCardColumn = ["price", "brand", "label"];
+        };
     }
 
-    retrieveTarget = () => {
-        if(this.props.retrieveUrl !== null){
-            fetch(this.props.retrieveUrl,
-                {method: "GET"})
-                .then(res => res.json())
-                .then(data => this.setState({data: data.result}))
-                .catch(data => console.error(data));
+    checkPositiveValidation = (value) => {
+        if(value * 1 <= 0 ||
+        Number.isNaN(value * 1)){
+            return ["must be positive number",
+                "form-control is-invalid", false];
         }
+        else return ["correct", "form-control is-valid", true];
     }
 
-    checkValidation = (event) => {
+    checkStringValidation = (value) => {
+        if(value === ""){
+            return ["shouldn't be empty",
+                "form-control is-invalid", false];
+        }
+        else return ["correct", "form-control is-valid", true];
+    }
+
+    /** update props on each change */
+    changeHandle = (event) => {
         event.preventDefault();
-        if (event.target.id === "price"){
-            if(event.target.value * 1 <= 0 ||
-                Number.isNaN(event.target.value * 1)){
-                this.setState({warning: {...this.state.warning,
-                            price: "price should be positive number"},
-                        color: {...this.state.color,
-                            price: "is-invalid"}})
-            }
-            else{
-                this.setState({warning: {...this.state.warning,
-                        price: "correct"},
-                    color: {...this.state.color,
-                        price: "is-valid"}})
-            }
+        if(event.target.id === "price"){
+            this.setState({price:
+                    this.checkPositiveValidation(event.target.value)});
         }
-        if (event.target.id === "label"){
-            if(event.target.value === ""){
-                this.setState({warning: {...this.state.warning,
-                            label: "label should not be empty"},
-                        color: {...this.state.color,
-                            label: "is-invalid"}})
-            }
-            else{
-                this.setState({warning: {...this.state.warning,
-                        label: "correct"},
-                    color: {...this.state.color,
-                        label: "is-valid"}})
-            }
+        else if(event.target.id === "brand"){
+            this.setState({brand:
+                    this.checkStringValidation(event.target.value)});
         }
-        if (event.target.id === "brand"){
-            if(event.target.value === ""){
-                this.setState({warning: {...this.state.warning,
-                            brand: "brand should not be empty"},
-                        color: {...this.state.color,
-                            brand: "is-invalid"}})
-            }
-            else{
-                this.setState({warning: {...this.state.warning,
-                        brand: "correct"},
-                    color: {...this.state.color,
-                        brand: "is-valid"}})
-            }
+        else if(event.target.id === "label"){
+            this.setState({label:
+                    this.checkStringValidation(event.target.value)});
         }
     }
 
-    checkAndUpdate = (event) => {
-        event.preventDefault();
-        let validateToken = true;
-        if(Object.keys(this.state.color).length < 1){
-            this.setState({fill: "can't be empty"})
-            validateToken = false;
+    buttonDisable = () => {
+        if(this.state.price[2] === true &&
+            this.state.brand[2] === true &&
+            this.state.label[2] === true){
+            this.setState({disable: false}, () =>{
+                console.log(this.state.disable);
+            });
         }
         else{
-            Object.values(this.state.color).map(item => {
-                console.log(item);
-                if(item !== "is-valid"){
-                    validateToken = false;
-                }
-            })
+            this.setState({disable: true});
         }
-        if(validateToken){
-            let data = {}
-            this.props.column.map((item) => {
-                data[item] = document.getElementById(item).value;
+    }
+
+    submitHandle = (event) => {
+        event.preventDefault();
+        let data = {}
+        this.props.column.map((item) => {
+            data[item] = document.getElementById(item).value;
+        })
+        fetch(this.props.pushUrl,
+            {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             })
-            this.setState({submitting: true});
-            fetch(this.props.pushUrl,
-                {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(res => res.json())
-                .then(data => this.setState({serverFeedback: data.message, submitting: false},
-                    () => {this.props.history.push(`/`)}))
-                .catch(data => this.setState({serverFeedback: data.error, submitting: false}))
-        }
+            .then(res => res.json())
+            .then(data => console.log(data.message))
+            .then(() => this.props.history.push(this.props.jump))
+            .catch(data => window.alert(data.message))
     }
 
     render(){
@@ -118,17 +91,18 @@ class FillInForm extends Component{
                         {this.props.column.map(item =>
                             <div className="form-row">
                                 <label htmlFor={item}>{item}</label>
-                                <input type="text" className={"form-control " + this.state.color[item]}
+                                <input type="text" className={this.state[item][1]}
                                        id={item} defaultValue={this.state.data[item]}
-                                       onChange={this.checkValidation}/>
+                                       onChange={this.changeHandle}/>
                                 <div id={item + "small"} className="form-text text-muted">
-                                    {this.state.warning[item] != null ?
-                                        this.state.warning[item] : "please input "+ item}
+                                    {this.state[item][0]}
                                 </div>
                             </div>
                         )}
-                        <button disabled={this.state.submitting} type="submit" className="btn btn-primary"
-                                onClick={this.checkAndUpdate}>Update</button>
+                        <button disabled={!(this.state.price[2] === true &&
+                        this.state.brand[2] === true &&
+                        this.state.label[2] === true)} type="submit" className="btn btn-primary"
+                                onClick={this.submitHandle}>Update</button>
                     </form>
                     <div className={"col col-md-5"}>
                         {this.state.fill}
@@ -139,7 +113,16 @@ class FillInForm extends Component{
     }
 
     componentDidMount() {
-        this.retrieveTarget();
+        if(this.props.retrieveUrl !== null){
+            fetch(this.props.retrieveUrl,
+                {method: "GET"})
+                .then(res => res.json())
+                .then(data => this.setState({data: data.result,
+                price: ["this is price", "form-control", true],
+                brand: ["this is brand", "form-control", true],
+                label: ["this is label", "form-control", true]}))
+                .catch(data => console.error(data));
+        }
     }
 
 }
