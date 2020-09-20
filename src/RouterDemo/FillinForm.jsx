@@ -99,7 +99,7 @@ class FillInForm extends Component{
                         {Object.keys(this.props.column).length > 0 &&
 /*****          tips: must use map here not forEach   ***********/
                         Object.keys(this.props.column).map(item =>
-                           <div className="form-row">
+                           <div className="form-row" key={item}>
                                 <label
                                     htmlFor={item}>
                                     {item}
@@ -107,7 +107,7 @@ class FillInForm extends Component{
                                 <input type="text"
                                        className={this.state.validationCheck[item][1]}
                                        id={item}
-                                       value={this.state.input[item]}
+                                       value={this.state.input[item] || "" }
                                        onChange={this.changeHandle}
                                 />
                                 <div
