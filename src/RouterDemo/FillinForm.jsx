@@ -37,7 +37,7 @@ class FillInForm extends Component{
         return ans;
     }
 
-/******              update props on each change */
+/******          update props on each change */
     changeHandle = (event) => {
         event.preventDefault();
         Object.keys(this.props.column).forEach(k => {
@@ -76,6 +76,7 @@ class FillInForm extends Component{
                     this.props.history.push(this.props.jump)
                 }
                 else{
+                    this.validationCheckInit();
                     this.setState({input:{}}, () => console.log(this.state.input));
                 }
             })
@@ -97,7 +98,7 @@ class FillInForm extends Component{
                 <div className={"row"}>
                     <form className={"col"}>
                         {Object.keys(this.props.column).length > 0 &&
-/*****          tips: must use map here not forEach   ***********/
+/*****          tips: must use map here not forEach because forEach will not return  ***********/
                         Object.keys(this.props.column).map(item =>
                            <div className="form-row" key={item}>
                                 <label
@@ -107,6 +108,7 @@ class FillInForm extends Component{
                                 <input type="text"
                                        className={this.state.validationCheck[item][1]}
                                        id={item}
+/* we need to add || "" here, or this input will be uncontrolled and it will not rerender after setState**/
                                        value={this.state.input[item] || "" }
                                        onChange={this.changeHandle}
                                 />
