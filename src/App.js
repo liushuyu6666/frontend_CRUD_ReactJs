@@ -31,6 +31,7 @@ function clickHandle(){
 
 function RouterApp() {
     return(
+
             <Router>
                 <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li className="nav-item" role="presentation">
@@ -51,6 +52,7 @@ function RouterApp() {
                     </li>
                 </ul>
                 <Switch>
+
 
                     <Route path="/" exact>
                         <Display/>
