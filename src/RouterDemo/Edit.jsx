@@ -10,34 +10,17 @@ class Edit extends Component{
         this.jumpTo = '/';
     }
 
-    // submitHandle = (event) => {
-    //     let url = "http://localhost:8080/v1/graphic_cards/" + this.props.match.params.id;
-    //     event.preventDefault();
-    //     let data = {}
-    //     this.props.column.map((item) => {
-    //         data[item] = document.getElementById(item).value;
-    //     })
-    //     fetch(url,
-    //         {
-    //             method: "POST",
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(data)
-    //         })
-    //         .then(res => res.json())
-    //         .then(data => console.log(data.message))
-    //         .then(() => this.props.history.push(`/`))
-    //         .catch(data => window.alert(data.message))
-    // }
-
-
-
     render(){
         // console.log(url);
         return(
-           <FillInForm retrieveUrl={this.url}
-           pushUrl={this.url} column={["price", "brand", "label"]} jump={this.jumpTo}/>
+           <FillInForm
+               retrieveUrl={this.url}
+               submitHandle={this.submitHandle}
+               pushUrl={this.url}
+               column={{"price": "checkPositive",
+                   "brand": "checkString", "label": "checkString"}}
+               purpose="update"
+               jump={this.jumpTo}/>
         )
     }
 

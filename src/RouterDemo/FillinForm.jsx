@@ -1,73 +1,66 @@
 import React, {Component} from "react";
 import {Link, withRouter} from "react-router-dom";
 
-
+/** input: props.column = {price: "checkPositive",
+ * brand: "checkString", label: "checkString"} */
 class FillInForm extends Component{
 
     constructor(props) {
         super(props);
         this.state = {
-            data: {},
-            price: ["this is price", "form-control", false],
-            brand: ["this is brand", "form-control", false],
-            label: ["this is label", "form-control", false],
-            disable: true,
+            data: {}, // initial data from backend if this table is for updating
+            input: {}, // records input change
+            validationCheck: {}, // check if the input is validated
             serverFeedback: "",
         };
+        this.validationCheckInit();
     }
 
     checkPositiveValidation = (value) => {
+        let ans;
         if(value * 1 <= 0 ||
         Number.isNaN(value * 1)){
-            return ["must be positive number",
+            ans = ["must be positive number",
                 "form-control is-invalid", false];
         }
-        else return ["correct", "form-control is-valid", true];
+        else ans = ["correct", "form-control is-valid", true];
+        return ans;
     }
 
     checkStringValidation = (value) => {
+        let ans;
         if(value === ""){
-            return ["shouldn't be empty",
+            ans = ["shouldn't be empty",
                 "form-control is-invalid", false];
         }
-        else return ["correct", "form-control is-valid", true];
+        else ans = ["correct", "form-control is-valid", true];
+        return ans;
     }
 
-    /** update props on each change */
+/******              update props on each change */
     changeHandle = (event) => {
         event.preventDefault();
-        if(event.target.id === "price"){
-            this.setState({price:
-                    this.checkPositiveValidation(event.target.value)});
-        }
-        else if(event.target.id === "brand"){
-            this.setState({brand:
-                    this.checkStringValidation(event.target.value)});
-        }
-        else if(event.target.id === "label"){
-            this.setState({label:
-                    this.checkStringValidation(event.target.value)});
-        }
-    }
-
-    buttonDisable = () => {
-        if(this.state.price[2] === true &&
-            this.state.brand[2] === true &&
-            this.state.label[2] === true){
-            this.setState({disable: false}, () =>{
-                console.log(this.state.disable);
-            });
-        }
-        else{
-            this.setState({disable: true});
-        }
+        Object.keys(this.props.column).forEach(k => {
+            if(event.target.id === k){
+                this.setState({input: {...this.state.input, [k]: event.target.value}});
+                if(this.props.column[k] === "checkPositive"){
+                    this.setState({validationCheck: {...this.state.validationCheck,
+                        [k]: this.checkPositiveValidation(event.target.value)}})
+                }
+                else if(this.props.column[k] === "checkString"){
+                    // console.log("change handle: " + event.target.id);
+                    this.setState({validationCheck: {...this.state.validationCheck,
+                            [k]: this.checkStringValidation(event.target.value)}})
+                }
+            }
+        })
     }
 
     submitHandle = (event) => {
         event.preventDefault();
         let data = {}
-        this.props.column.map((item) => {
-            data[item] = document.getElementById(item).value;
+        Object.keys(this.props.column).forEach(k => {
+            data[k] = this.state.input[k];
         })
         fetch(this.props.pushUrl,
             {
@@ -78,31 +71,60 @@ class FillInForm extends Component{
                 body: JSON.stringify(data)
             })
             .then(res => res.json())
-            .then(data => console.log(data.message))
-            .then(() => this.props.history.push(this.props.jump))
+            .then(() => {
+                if(this.props.jump !== null){
+                    this.props.history.push(this.props.jump)
+                }
+                else{
+                    console.log("here");
+                    this.setState({
+                        data:{price: 1}}, ()=>{
+                        console.log(this.state.data);
+                    });
+                    this.setState({input:{},
+                    data:{}});
+                }
+            })
             .catch(data => window.alert(data.message))
     }
 
+    // initialize validationCheck, validationCheck: {col1: [prompt text, box color, button able]}
+    validationCheckInit = () => {
+        let button = (this.props.purpose === "update");
+        Object.keys(this.props.column).forEach(k => {
+            this.state.validationCheck[k] = ["this is " + k, "form-control", button];
+        })
+    }
+
     render(){
+
         return(
             <div className={"container"}>
                 <div className={"row"}>
                     <form className={"col"}>
-                        {this.props.column.map(item =>
-                            <div className="form-row">
-                                <label htmlFor={item}>{item}</label>
-                                <input type="text" className={this.state[item][1]}
-                                       id={item} defaultValue={this.state.data[item]}
-                                       onChange={this.changeHandle}/>
-                                <div id={item + "small"} className="form-text text-muted">
-                                    {this.state[item][0]}
+                        {Object.keys(this.props.column).length > 0 &&
+/*****          tips: must use map here not forEach   ***********/
+                        Object.keys(this.props.column).map(item =>
+                           <div className="form-row">
+                                <label
+                                    htmlFor={item}>
+                                    {item}
+                                </label>
+                                <input type="text"
+                                       className={this.state.validationCheck[item][1]}
+                                       id={item}
+                                       defaultValue={this.state.data[item]}
+                                       onChange={this.changeHandle}
+                                />
+                                <div
+                                    id={item + "small"}
+                                    className="form-text text-muted">
+                                    {this.state.validationCheck[item][0]}
                                 </div>
                             </div>
                         )}
-                        <button disabled={!(this.state.price[2] === true &&
-                        this.state.brand[2] === true &&
-                        this.state.label[2] === true)} type="submit" className="btn btn-primary"
-                                onClick={this.submitHandle}>Update</button>
+                        <button disabled={!this.buttonDisable()} type="submit" className="btn btn-primary"
+                                onClick={this.submitHandle}>submit</button>
                     </form>
                     <div className={"col col-md-5"}>
                         {this.state.fill}
@@ -112,16 +134,34 @@ class FillInForm extends Component{
         )
     }
 
+
+    buttonDisable = () => {
+        let disable = true;
+        Object.keys(this.state.validationCheck).forEach(k => {
+            disable = this.state.validationCheck[k][2] && disable;
+        })
+        return disable;
+    }
+
+
+
+    createForm = () => {
+    }
+
+    updateForm = () => {
+        fetch(this.props.retrieveUrl,
+            {method: "GET"})
+            .then(res => res.json())
+            .then(data => this.setState({data: data.result}))
+            .catch(err => console.error(err));
+    }
+
     componentDidMount() {
-        if(this.props.retrieveUrl !== null){
-            fetch(this.props.retrieveUrl,
-                {method: "GET"})
-                .then(res => res.json())
-                .then(data => this.setState({data: data.result,
-                price: ["this is price", "form-control", true],
-                brand: ["this is brand", "form-control", true],
-                label: ["this is label", "form-control", true]}))
-                .catch(data => console.error(data));
+        if(this.props.purpose === "update"){
+            this.updateForm();
+        }
+        if(this.props.purpose === "create"){
+            this.createForm();
         }
     }
 
