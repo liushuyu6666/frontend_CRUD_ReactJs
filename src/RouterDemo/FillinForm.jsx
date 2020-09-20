@@ -76,13 +76,7 @@ class FillInForm extends Component{
                     this.props.history.push(this.props.jump)
                 }
                 else{
-                    console.log("here");
-                    this.setState({
-                        data:{price: 1}}, ()=>{
-                        console.log(this.state.data);
-                    });
-                    this.setState({input:{},
-                    data:{}});
+                    this.setState({input:{}}, () => console.log(this.state.input));
                 }
             })
             .catch(data => window.alert(data.message))
@@ -113,7 +107,7 @@ class FillInForm extends Component{
                                 <input type="text"
                                        className={this.state.validationCheck[item][1]}
                                        id={item}
-                                       defaultValue={this.state.data[item]}
+                                       value={this.state.input[item]}
                                        onChange={this.changeHandle}
                                 />
                                 <div
@@ -152,7 +146,7 @@ class FillInForm extends Component{
         fetch(this.props.retrieveUrl,
             {method: "GET"})
             .then(res => res.json())
-            .then(data => this.setState({data: data.result}))
+            .then(data => this.setState({input: data.result}))
             .catch(err => console.error(err));
     }
 
