@@ -7,7 +7,7 @@ class Edit extends Component{
     constructor(props) {
         super(props);
         this.url = "http://localhost:8080/v1/graphic_cards/" + this.props.match.params.id;
-        this.jumpTo = '/';
+        this.jumpTo = '/home';
     }
 
     render(){

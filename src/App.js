@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import GraphicButton from "./components/GraphicButton";
 import Display from "./RouterDemo/Display";
@@ -54,7 +53,7 @@ function RouterApp() {
                 <Switch>
 
 
-                    <Route path="/" exact>
+                    <Route path="" exact>
                         <Display/>
                     </Route>
 

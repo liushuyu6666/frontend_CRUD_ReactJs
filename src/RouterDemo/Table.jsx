@@ -24,7 +24,7 @@ class Table extends Component{
                         </tr>
                         </thead>
                         <tbody>
-                        {this.props.data.length > 0 &&
+                        {this.props.data !== null &&
                         this.props.data.map(row => (
                                 <tr>
                                     {this.props.columns.map(ele =>

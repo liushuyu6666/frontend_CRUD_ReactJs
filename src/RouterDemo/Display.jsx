@@ -15,7 +15,13 @@ class Display extends Component{
     }
 
     getList = () =>{
-        fetch("http://localhost:8080/v1/graphic_cards", {method: "GET"})
+        fetch("http://localhost:8080/v1/graphic_cards",
+            {method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': localStorage.getItem('token'),
+                },
+            })
             .then(res => res.json())
             .then(data => this.setState({data: data.result},
                 () => console.log(this.state.data)))
@@ -26,7 +32,13 @@ class Display extends Component{
         let targetId = event.target.name;
         if(window.confirm("Do you want to delete this record?")){
             fetch("http://localhost:8080/v1/graphic_cards/" + targetId,
-                {method: "DELETE"})
+                {
+                    method: "DELETE",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'token': localStorage.getItem('token'),
+                    },
+                })
                 .then(res => res.json())
                 .then(data => console.log(data))
                 .then(() => this.getList())

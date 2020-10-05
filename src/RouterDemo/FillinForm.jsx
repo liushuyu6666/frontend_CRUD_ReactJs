@@ -67,6 +67,7 @@ class FillInForm extends Component{
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
+                    'token': localStorage.getItem('token'),
                 },
                 body: JSON.stringify(data)
             })
@@ -146,7 +147,13 @@ class FillInForm extends Component{
 
     updateForm = () => {
         fetch(this.props.retrieveUrl,
-            {method: "GET"})
+            {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'token': localStorage.getItem('token'),
+                },
+            })
             .then(res => res.json())
             .then(data => this.setState({input: data.result}))
             .catch(err => console.error(err));
